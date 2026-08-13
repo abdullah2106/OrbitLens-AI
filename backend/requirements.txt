@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pandas
+numpy
+scikit-learn
+python-dotenv
+pydantic
+requests
+markdown
+weasyprint
+python-multipart
