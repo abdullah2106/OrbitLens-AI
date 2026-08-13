@@ -53,3 +53,19 @@ def evict_expired() -> None:
     ]
     for sid in expired:
         del _store[sid]
+
+
+def update_session(session_id: str, **fields) -> None:
+    """
+    Merge *fields* into an existing session entry WITHOUT resetting created_at.
+
+    Use this for any post-creation write (e.g. caching computed anomalies or
+    insights onto a session). Only set_session() (called once, at upload time)
+    should ever set created_at -- every subsequent write must preserve the
+    original creation time so the TTL clock reflects actual session age, not
+    the time of the most recent request.
+    """
+    entry = _store.get(session_id)
+    if entry is None:
+        return
+    entry.update(fields)
