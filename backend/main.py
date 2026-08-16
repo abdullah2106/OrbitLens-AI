@@ -5,10 +5,9 @@ Endpoints registered here:
   GET /health  -- liveness check
 
 Additional routes are registered via the api/routes_*.py modules.
-
-NOTE: this file imports from api.routes_* -- it will not run until backend/api/
-is fully built. That's expected at this stage of the build.
 """
+
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
@@ -19,7 +18,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api import routes_upload, routes_anomalies, routes_telemetry, routes_insights, routes_report
 
-app = FastAPI(title="OrbitLens AI", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("[OrbitLens] Backend started. Session store ready.")
+    yield
+
+
+app = FastAPI(title="OrbitLens AI", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,12 +34,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    print("[OrbitLens] Backend started. Session store ready.")
-
 
 app.include_router(routes_upload.router)
 app.include_router(routes_anomalies.router)
